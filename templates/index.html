@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>File Sharing and Chat App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding-top: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        form {
+            margin-bottom: 30px;
+        }
+        input[type="file"],
+        input[type="submit"] {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+        input[type="file"] {
+            background-color: #ecf0f1;
+            color: #2c3e50;
+        }
+        input[type="submit"] {
+            background-color: #3498db;
+            color: white;
+        }
+        input[type="submit"]:hover {
+            background-color: #2980b9;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            text-align: center;
+        }
+        li {
+            display: inline-block;
+            margin: 10px;
+            text-align: left;
+        }
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        #messages {
+            text-align: left;
+            margin: 10px auto;
+            width: 80%;
+            border: 1px solid #ecf0f1;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .chat-message {
+            margin-bottom: 10px;
+        }
+        .chat-message .name {
+            font-weight: bold;
+        }
+        #message-form {
+            width: 80%;
+            margin: 20px auto;
+        }
+        #message-input {
+            width: 80%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        #send-button {
+            margin-left: 10px;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            border: none;
+        }
+        #send-button:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>File Sharing and Chat App</h1>
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <input type="submit" value="Upload">
+    </form>
+    <h2>Uploaded Files:</h2>
+    <ul>
+        {% for filename in uploaded_files %}
+            <li><a href="/download/{{ filename }}">{{ filename }}</a></li>
+        {% endfor %}
+    </ul>
+    <h2>Chat:</h2>
+    <div id="messages"></div>
+    <form id="message-form">
+        <input type="text" id="message-input" placeholder="Type your message here...">
+        <button id="send-button" type="submit">Send</button>
+    </form>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function() {
+            var socket = io();
+            $('#message-form').submit(function(e) {
+                e.preventDefault();
+                var message = $('#message-input').val();
+                socket.emit('message', { text: message });
+                $('#message-input').val('');
+            });
+            socket.on('message', function(data) {
+                var messageHtml = '<div class="chat-message"><span class="name">' + data.name + ': </span><span class="text">' + data.text + '</span></div>';
+                $('#messages').append(messageHtml);
+            });
+        });
+    </script>
+</body>
+
+</html>
