@@ -94,36 +94,48 @@
 
 <body>
     <h1>File Sharing and Chat App</h1>
-    <form action="/upload" method="post" enctype="multipart/form-data">
+    <h3>Welcome, {{ username }}! <a href="/logout/{{ username }}">Logout</a></h3>
+
+    <form action="/upload/{{ username }}" method="post" enctype="multipart/form-data">
         <input type="file" name="file">
         <input type="submit" value="Upload">
     </form>
+
     <h2>Uploaded Files:</h2>
     <ul>
         {% for filename in uploaded_files %}
             <li><a href="/download/{{ filename }}">{{ filename }}</a></li>
         {% endfor %}
     </ul>
+
     <h2>Chat:</h2>
     <div id="messages"></div>
     <form id="message-form">
         <input type="text" id="message-input" placeholder="Type your message here...">
         <button id="send-button" type="submit">Send</button>
     </form>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
     <script>
         $(document).ready(function() {
             var socket = io();
+
+            // Handle message sending
             $('#message-form').submit(function(e) {
                 e.preventDefault();
                 var message = $('#message-input').val();
                 socket.emit('message', { text: message });
-                $('#message-input').val('');
+                $('#message-input').val('');  // Clear the input field after sending
             });
+
+            // Handle incoming messages
             socket.on('message', function(data) {
                 var messageHtml = '<div class="chat-message"><span class="name">' + data.name + ': </span><span class="text">' + data.text + '</span></div>';
                 $('#messages').append(messageHtml);
+
+                // Scroll to the bottom of the messages container
+                $('#messages').scrollTop($('#messages')[0].scrollHeight);
             });
         });
     </script>
